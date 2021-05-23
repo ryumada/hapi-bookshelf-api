@@ -1,0 +1,30 @@
+{
+  "name": "hapi-bookshelf-api",
+  "version": "0.0.1",
+  "description": "Bookshelf API to save your books and manage your read list",
+  "main": "./src/server.js",
+  "scripts": {
+    "start-prod": "NODE_ENV=production node ./src/server.js",
+    "start-dev": "nodemon ./src/server.js",
+    "lint": "eslint ./"
+  },
+  "keywords": [
+    "hapi",
+    "api",
+    "back-end",
+    "javascript",
+    "nodejs"
+  ],
+  "author": "ryumada",
+  "license": "ISC",
+  "dependencies": {
+    "@hapi/hapi": "^20.1.3",
+    "nanoid": "^3.1.23"
+  },
+  "devDependencies": {
+    "eslint": "^7.27.0",
+    "eslint-config-airbnb-base": "^14.2.1",
+    "eslint-plugin-import": "^2.23.3",
+    "nodemon": "^2.0.7"
+  }
+}
