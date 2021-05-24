@@ -21,7 +21,7 @@ const replace = (replacedData) => {
   // masukkan data ke file json
   const dataString = JSON.stringify(replacedData, null, 2);
   // biar bisa langsung kasih respon dibawahnya, pake asynchronous, responnya di handler
-  fs.writeFile(fileLocation, dataString, (e) => {
+  fs.writeFileSync(fileLocation, dataString, (e) => {
     // if error throw error
     if (e) throw e;
     // file successfully replaced

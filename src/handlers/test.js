@@ -11,11 +11,11 @@ const main = (request, h) => {
   const response = h.response({
     status: 'success',
     message: 'berhasil',
-    code: 200,
     data: {
       test: 'test',
     },
   });
+  response.code(200);
 
   return response;
 };

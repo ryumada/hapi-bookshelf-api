@@ -1,9 +1,44 @@
 /* ---------------------------- require handlers ---------------------------- */
-// const { } = require('./handler');
 const test = require('./handlers/test'); // test handler
+// main handler
+const {
+  addBook,
+  deleteBook,
+  editBook,
+  getBook,
+  getBookById,
+} = require('./handler');
 
 /* --------------------------------- routes --------------------------------- */
 const routes = [
+  // main route
+  {
+    method: 'POST',
+    path: '/books',
+    handler: addBook,
+  },
+  {
+    method: 'GET',
+    path: '/books',
+    handler: getBook,
+  },
+  {
+    method: 'GET',
+    path: '/books/{bookId}',
+    handler: getBookById,
+  },
+  {
+    method: 'PUT',
+    path: '/books/{bookId}',
+    handler: editBook,
+  },
+  {
+    method: 'DELETE',
+    path: '/books/{bookId}',
+    handler: deleteBook,
+  },
+
+  // test route
   {
     method: 'GET',
     path: '/',
