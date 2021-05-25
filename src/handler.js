@@ -32,6 +32,7 @@ const addBook = (request, h) => {
     return response;
   }
 
+  // untuk meanangkap generic error menggunakan try...catch...
   try {
     const id = nanoid(16);
     const bookNew = {
@@ -174,7 +175,7 @@ const editBook = (request, h) => {
 const getBook = (request, h) => {
   const { finished, name, reading } = request.query; // ambil query parameter
   // ubah parameter jadi boolean
-  let response = null;
+  let responseData = {};
   // cek apa ada query parameter reading
   if (reading !== undefined) {
     // ubah query parameter jadi boolean
@@ -184,7 +185,7 @@ const getBook = (request, h) => {
 
     if (!books) {
       // send response
-      response = h.response({
+      const response = h.response({
         status: 'fail',
         message: 'Buku yang sedang dibaca, tidak ditemukan',
       });
@@ -196,13 +197,12 @@ const getBook = (request, h) => {
     books = toolsBook.mapBook(books);
 
     // send response
-    response = h.response({
+    responseData = {
       status: 'success',
-      reading: reading,
       data: {
         books,
       },
-    });
+    };
   } else if (finished !== undefined) { // jika ada parameter finished dan bernilai true
     // ubah query parameter jadi boolean
     const isFinished = Boolean(Number(finished));
@@ -211,7 +211,7 @@ const getBook = (request, h) => {
 
     if (!books) {
       // send response
-      response = h.response({
+      const response = h.response({
         status: 'fail',
         message: 'Buku yang sudah selesai, tidak ditemukan',
       });
@@ -223,20 +223,29 @@ const getBook = (request, h) => {
     books = toolsBook.mapBook(books);
 
     // send response
-    response = h.response({
+    responseData = {
       status: 'success',
-      finished: finished,
       data: {
         books,
       },
-    });
+    };
   } else if (name !== undefined) { // jika ada parameter name
-    // filter buku yang sudah selesai saja
-    let books = dataJson.data.bookData.find((bookFilter) => bookFilter.name === name);
+    // buat regexExp dengan RegexExp Class, cari dengan flags insensitive case
+    const searchRegExp = new RegExp(name, 'i');
 
-    if (books === []) {
+    // siapkan array book filtered
+    let bookFiltered = [];
+    // cari di setiap data buku, lalu tambahkan ke array filtered
+
+    dataJson.data.bookData.forEach((bookFind) => {
+      if (bookFind.name.search(searchRegExp) !== -1) {
+        bookFiltered.push(bookFind);
+      }
+    });
+
+    if (bookFiltered === []) {
       // send response
-      response = h.response({
+      const response = h.response({
         status: 'fail',
         message: `Buku dengan nama "${name}", tidak ditemukan`,
       });
@@ -244,30 +253,29 @@ const getBook = (request, h) => {
 
       return response;
     }
-    // map the book
-    books = toolsBook.mapBook(books);
+    // map the book data
+    bookFiltered = toolsBook.mapBook(bookFiltered);
 
     // send response
-    response = h.response({
+    responseData = {
       status: 'success',
-      name: name,
       data: {
-        books,
+        books: bookFiltered,
       },
-    });
+    };
   } else {
     // map array to have id, name, and publisher only
     const books = toolsBook.mapBook(dataJson.data.bookData);
 
     // send response
-    response = h.response({
+    responseData = {
       status: 'success',
-      part: 'all',
       data: {
         books,
       },
-    });
+    };
   }
+  const response = h.response(responseData);
   response.code(200);
 
   return response;
