@@ -1,5 +1,6 @@
 /* ---------------------------- require packages ---------------------------- */
 const { nanoid } = require('nanoid');
+const toolsBook = require('./handlers/toolsBook'); // tools used to help manage books
 // data JSON module
 const dataJson = require('./handlers/_dataJson');
 
@@ -171,21 +172,102 @@ const editBook = (request, h) => {
 
 // tampilkan buku yang ada di api
 const getBook = (request, h) => {
-  // map array to have id, name, and publisher only
-  const books = dataJson.data.bookData.map((book) => {
-    const { id, name, publisher } = book;
-    return {
-      id, name, publisher,
-    };
-  });
+  const { finished, name, reading } = request.query; // ambil query parameter
+  // ubah parameter jadi boolean
+  let response = null;
+  // cek apa ada query parameter reading
+  if (reading !== undefined) {
+    // ubah query parameter jadi boolean
+    const isReading = Boolean(Number(reading));
+    // filter buku yang dibaca aja
+    let books = dataJson.data.bookData.filter((bookFilter) => bookFilter.reading === isReading);
 
-  // send response
-  const response = h.response({
-    status: 'success',
-    data: {
-      books,
-    },
-  });
+    if (!books) {
+      // send response
+      response = h.response({
+        status: 'fail',
+        message: 'Buku yang sedang dibaca, tidak ditemukan',
+      });
+      response.code(404);
+
+      return response;
+    }
+    // map the book
+    books = toolsBook.mapBook(books);
+
+    // send response
+    response = h.response({
+      status: 'success',
+      reading: reading,
+      data: {
+        books,
+      },
+    });
+  } else if (finished !== undefined) { // jika ada parameter finished dan bernilai true
+    // ubah query parameter jadi boolean
+    const isFinished = Boolean(Number(finished));
+    // filter buku yang sudah selesai saja
+    let books = dataJson.data.bookData.filter((bookFilter) => bookFilter.finished === isFinished);
+
+    if (!books) {
+      // send response
+      response = h.response({
+        status: 'fail',
+        message: 'Buku yang sudah selesai, tidak ditemukan',
+      });
+      response.code(404);
+
+      return response;
+    }
+    // map the book
+    books = toolsBook.mapBook(books);
+
+    // send response
+    response = h.response({
+      status: 'success',
+      finished: finished,
+      data: {
+        books,
+      },
+    });
+  } else if (name !== undefined) { // jika ada parameter name
+    // filter buku yang sudah selesai saja
+    let books = dataJson.data.bookData.find((bookFilter) => bookFilter.name === name);
+
+    if (books === []) {
+      // send response
+      response = h.response({
+        status: 'fail',
+        message: `Buku dengan nama "${name}", tidak ditemukan`,
+      });
+      response.code(404);
+
+      return response;
+    }
+    // map the book
+    books = toolsBook.mapBook(books);
+
+    // send response
+    response = h.response({
+      status: 'success',
+      name: name,
+      data: {
+        books,
+      },
+    });
+  } else {
+    // map array to have id, name, and publisher only
+    const books = toolsBook.mapBook(dataJson.data.bookData);
+
+    // send response
+    response = h.response({
+      status: 'success',
+      part: 'all',
+      data: {
+        books,
+      },
+    });
+  }
   response.code(200);
 
   return response;
